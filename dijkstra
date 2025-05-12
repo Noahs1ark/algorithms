@@ -1,0 +1,94 @@
+#include <stdio.h>
+#include <limits.h>
+#include <stdbool.h>
+
+#define MAX_VERTICES 100
+
+int cost[MAX_VERTICES][MAX_VERTICES];
+int numberOfVertices;
+
+// find the unvisited vertex with smallest distance
+int getMinIndex(int dist[], bool visited[]) {
+    int minDistance = INT_MAX;
+    int minIndex = -1;
+    for (int i = 0; i < numberOfVertices; i++) {
+        if (!visited[i] && dist[i] < minDistance) {
+            minDistance = dist[i];
+            minIndex = i;
+        }
+    }
+    return minIndex;
+}
+
+// display path from source to each vertex
+void displayPaths(int dist[], int parent[]) {
+    for (int i = 0; i < numberOfVertices; i++) {
+        printf("Path to %d: ", i);
+        int pathStack[MAX_VERTICES];
+        int top = -1;
+        int current = i;
+        // build path in reverse
+        while (current != -1) {
+            pathStack[++top] = current;
+            current = parent[current];
+        }
+        // print path forward
+        while (top >= 0) {
+            printf("%d", pathStack[top--]);
+            if (top >= 0) printf(" <- ");
+        }
+        printf("\nDistance = %d\n\n", dist[i]);
+    }
+}
+
+// run Dijkstra from sourceVertex
+void dijkstra(int sourceVertex) {
+    int dist[MAX_VERTICES];
+    int parent[MAX_VERTICES];
+    bool visited[MAX_VERTICES] = { false };
+
+    // init distances to “infinity”
+    for (int i = 0; i < numberOfVertices; i++) {
+        dist[i] = INT_MAX;
+        parent[i] = -1;
+    }
+    dist[sourceVertex] = 0;
+
+    for (int count = 0; count < numberOfVertices - 1; count++) {
+        int u = getMinIndex(dist, visited);
+        if (u == -1) break;
+        visited[u] = true;
+
+        // update neighbours
+        for (int v = 0; v < numberOfVertices; v++) {
+            int edgeWeight = cost[u][v];
+            if (!visited[v]
+                && edgeWeight != INT_MAX
+                && dist[u] + edgeWeight < dist[v]) {
+                dist[v] = dist[u] + edgeWeight;
+                parent[v] = u;
+            }
+        }
+    }
+
+    displayPaths(dist, parent);
+}
+
+int main(void) {
+    printf("Enter number of vertices: ");
+    scanf("%d", &numberOfVertices);
+
+    printf("Enter cost matrix (use %d for no edge):\n", INT_MAX);
+    for (int i = 0; i < numberOfVertices; i++) {
+        for (int j = 0; j < numberOfVertices; j++) {
+            scanf("%d", &cost[i][j]);
+        }
+    }
+
+    int sourceVertex;
+    printf("Enter source vertex: ");
+    scanf("%d", &sourceVertex);
+
+    dijkstra(sourceVertex);
+    return 0;
+}

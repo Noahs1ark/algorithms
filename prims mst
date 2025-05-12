@@ -1,0 +1,24 @@
+#include <stdio.h>
+#define V 5
+int main(){
+    int g[V][V] = {
+        {0,2,0,6,0},
+        {2,0,3,8,5},
+        {0,3,0,0,7},
+        {6,8,0,0,9},
+        {0,5,7,9,0}
+    }, key[V], mst[V]={0}, parent[V], i, j, u, min;
+    for(i=0;i<V;i++) key[i]=1e9;
+    for(key[0]=0, i=0;i<V-1;i++){
+        for(u=min=1e9, j=0;j<V;j++)
+            if(!mst[j] && key[j]<min) min=key[j], u=j;
+        mst[u]=1;
+        for(j=0;j<V;j++)
+            if(g[u][j] && !mst[j] && g[u][j]<key[j])
+                parent[j]=u, key[j]=g[u][j];
+    }
+    printf("Edge  Weight\n");
+    for(i=1;i<V;i++)
+        printf("%d - %d    %d\n", parent[i], i, key[i]);
+    return 0;
+}
